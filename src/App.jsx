@@ -1,11 +1,11 @@
 import React from 'react'
-import Header from './components/common/Header'
+import Header from './components/common/Header/Header';
+import Footer from './components/common/Footer/Footer';
 import Hero from './components/Hero/Hero'
 import Projects from './components/Projects/Projects'
 import Services from './components/Services/Services'
 import About from './components/About/About'
 import Contact from './components/Contact/Contact'
-import Footer from './components/common/Footer'
 
 
 function App() {
