@@ -13,7 +13,7 @@ const HeroTitle = () => {
         <span className="bg-gradient-to-r from-indigo-600 to-blue-500 bg-clip-text text-transparent">
           dev
         </span>
-        <span className="mx-2 text-gray-800">+</span>
+        <span className="mx-2 text-gray-800">&</span>
         <span className="bg-gradient-to-r from-amber-500 to-orange-400 bg-clip-text text-transparent">
           art
         </span>
@@ -32,7 +32,7 @@ const HeroTitle = () => {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.8, delay: 0.6 }}
       >
-        Construyo experiencias digitales escalables, dinámicas y optimizadas para un desarrollo de bajo costo.
+        Experiencias digitales escalables, dinámicas y optimizadas.
       </motion.p>
     </div>
   );

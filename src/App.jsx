@@ -6,6 +6,7 @@ import Projects from './components/Projects/Projects'
 import Services from './components/Services/Services'
 import About from './components/About/About'
 import Contact from './components/Contact/Contact'
+import WhatsAppButton from './components/common/WhatsAppButton';
 
 
 function App() {
@@ -18,6 +19,7 @@ function App() {
       <About />
       <Contact />
       <Footer />
+      <WhatsAppButton />      
     </div>
   )
 }
