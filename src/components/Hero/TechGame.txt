@@ -1,0 +1,798 @@
+
+
+
+<div className="mb-4">
+          <h3 className="text-lg font-semibold mb-2" style={{ color: darkMode ? '#E2E8F0' : '#1A202C' }}>
+            Sonido
+          </h3>
+          <button 
+            className="px-4 py-2 rounded-lg w-full transition-all flex items-center justify-center"
+            style={{ 
+              backgroundColor: soundEnabled ? miroColors.accent1 : (darkMode ? '#4A5568' : '#E2E8F0'),
+              color: soundEnabled ? 'white' : (darkMode ? '#E2E8F0' : '#4A5568')
+            }}
+            onClick={() => setSoundEnabled(!soundEnabled)}
+          >
+            {soundEnabled ? <Volume2 size={20} className="mr-2" /> : <VolumeX size={20} className="mr-2" />}
+            {soundEnabled ? 'Sonido Activado' : 'Sonido Desactivado'}
+          </button>
+        </div>
+        
+        <div className="mb-4">
+          <h3 className="text-lg font-semibold mb-2" style={{ color: darkMode ? '#E2E8F0' : '#1A202C' }}>
+            Categorías
+          </h3>
+          <div className="flex flex-wrap gap-2">
+            <button 
+              className={`px-3 py-1 rounded-lg text-sm ${activeCategory === 'all' 
+                ? 'bg-blue-500 text-white' 
+                : darkMode ? 'bg-gray-700 text-gray-200' : 'bg-gray-200 text-gray-700'}`}
+              onClick={() => setActiveCategory('all')}
+            >
+              Todas
+            </button>
+            <button 
+              className={`px-3 py-1 rounded-lg text-sm ${activeCategory === 'frontend' 
+                ? 'bg-blue-500 text-white' 
+                : darkMode ? 'bg-gray-700 text-gray-200' : 'bg-gray-200 text-gray-700'}`}
+              onClick={() => setActiveCategory('frontend')}
+            >
+              Frontend
+            </button>
+            <button 
+              className={`px-3 py-1 rounded-lg text-sm ${activeCategory === 'backend' 
+                ? 'bg-blue-500 text-white' 
+                : darkMode ? 'bg-gray-700 text-gray-200' : 'bg-gray-200 text-gray-700'}`}
+              onClick={() => setActiveCategory('backend')}
+            >
+              Backend
+            </button>
+            <button 
+              className={`px-3 py-1 rounded-lg text-sm ${activeCategory === 'devops' 
+                ? 'bg-blue-500 text-white' 
+                : darkMode ? 'bg-gray-700 text-gray-200' : 'bg-gray-200 text-gray-700'}`}
+              onClick={() => setActiveCategory('devops')}
+            >
+              DevOps
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <div className="flex gap-3">
+        <button 
+          className={`px-4 py-2 rounded-lg transition-all ${darkMode ? 'bg-gray-700 text-gray-200 hover:bg-gray-600' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}
+          onClick={() => setShowSettings(false)}
+        >
+          Volver
+        </button>
+        <button 
+          className="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white transition-all"
+          onClick={() => {
+            setHighScores({ normal: 0, time: 0, category: 0 });
+            setMessage('Puntuaciones reiniciadas');
+            setTimeout(() => setMessage(''), 1500);
+          }}
+        >
+          Reiniciar puntuaciones
+        </button>
+      </div>
+    </div>
+  );
+
+  // Renderizar pantalla de fin de juego
+  const renderGameOverScreen = () => (
+    <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-70 z-10">
+      <h2 className="text-2xl font-bold mb-2 text-white">¡Juego Terminado!</h2>
+      <p className="text-xl text-white mb-1">Puntuación: {score}</p>
+      <p className="text-lg text-white mb-4">Nivel alcanzado: {level}</p>
+      
+      {score > highScores[gameMode] && (
+        <div className="bg-yellow-500 px-4 py-2 rounded-lg text-white font-bold mb-4 animate-pulse">
+          ¡Nueva puntuación máxima!
+        </div>
+      )}
+      
+      <div className="flex gap-3">
+        <button 
+          className="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg shadow-lg transition-all"
+          onClick={() => startGame(gameMode, activeCategory)}
+        >
+          Jugar de Nuevo
+        </button>
+        <button 
+          className="px-6 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg shadow-lg transition-all"
+          onClick={() => {
+            setGameOver(false);
+            setIsPlaying(false);
+          }}
+        >
+          Menú Principal
+        </button>
+      </div>
+    </div>
+  );    } else {
+      // Incorrecto
+      playSound('wrong');
+      setStreak(0);
+      setLives(prev => prev - 1);
+      setMessage('¡Incorrecto! 😓');
+      
+      // Comprobar si se acabaron las vidas
+      if (lives <= 1) {
+        endGame();
+      } else {
+        // Retrasar un poco antes de quitar el mensaje
+        clearTimeout(animationRef.current);
+        animationRef.current = setTimeout(() => {
+          setMessage('');
+          setSelectedIcon(null);
+        }, 700);
+      }
+    }
+  };
+
+  const endGame = () => {
+    setIsPlaying(false);
+    setGameOver(true);
+    
+    // Actualizar puntuación máxima si es necesario
+    if (score > highScores[gameMode]) {
+      setHighScores(prev => ({
+        ...prev,
+        [gameMode]: score
+      }));
+    }
+    
+    setMessage(`¡Juego terminado! Puntuación final: ${score}`);
+    clearInterval(timerRef.current);
+  };
+
+  // Iniciar/reiniciar temporizador cuando cambia el nivel o el objetivo
+  useEffect(() => {
+    if (isPlaying) {
+      clearInterval(timerRef.current);
+      
+      if (gameMode !== 'time') {
+        const baseTime = difficultyLevel === 'easy' ? 15 : difficultyLevel === 'hard' ? 5 : 10;
+        setTimer(Math.max(3, baseTime - Math.floor(level / 2)));
+      }
+      
+      timerRef.current = setInterval(() => {
+        setTimer(prevTimer => {
+          if (prevTimer <= 1) {
+            if (gameMode === 'time') {
+              endGame();
+              return 0;
+            } else {
+              setLives(prev => prev - 1);
+              if (lives <= 1) {
+                endGame();
+                return 0;
+              } else {
+                setTarget(getRandomId());
+                const baseTime = difficultyLevel === 'easy' ? 15 : difficultyLevel === 'hard' ? 5 : 10;
+                return Math.max(3, baseTime - Math.floor(level / 2));
+              }
+            }
+          }
+          return prevTimer - 1;
+        });
+      }, 1000);
+    }
+    
+    return () => clearInterval(timerRef.current);
+  }, [target, level, isPlaying, gameMode]);function TechGame({ miroColors = { primary: '#3182CE', accent1: '#48BB78', accent2: '#805AD5' }, darkMode = false }) {
+  const [target, setTarget] = useState('');
+  const [message, setMessage] = useState('');
+  const [score, setScore] = useState(0);
+  const [streak, setStreak] = useState(0);
+  const [level, setLevel] = useState(1);
+  const [lives, setLives] = useState(3);
+  const [timer, setTimer] = useState(10);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [gameOver, setGameOver] = useState(false);
+  const [selectedIcon, setSelectedIcon] = useState(null);
+  const [gameMode, setGameMode] = useState('normal'); // 'normal', 'time', 'category'
+  const [activeCategory, setActiveCategory] = useState('all');
+  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [showSettings, setShowSettings] = useState(false);
+  const [highScores, setHighScores] = useState({
+    normal: 0,
+    time: 0,
+    category: 0
+  });
+  const [difficultyLevel, setDifficultyLevel] = useState('normal'); // 'easy', 'normal', 'hard'
+  const [visibleIcons, setVisibleIcons] = useState([]);
+  const [page, setPage] = useState(0);
+  const ICONS_PER_PAGE = 12;
+  
+  const timerRef = useRef(null);
+  const animationRef = useRef(null);
+  const correctSoundRef = useRef(null);
+  const wrongSoundRef = useRef(null);
+
+  // Leer configuración almacenada en localStorage al iniciar
+  useEffect(() => {
+    const savedSettings = localStorage.getItem('techGameSettings');
+    if (savedSettings) {
+      const parsed = JSON.parse(savedSettings);
+      setSoundEnabled(parsed.soundEnabled);
+      setDifficultyLevel(parsed.difficultyLevel || 'normal');
+      setHighScores(parsed.highScores || { normal: 0, time: 0, category: 0 });
+    }
+    
+    // Precargar sonidos
+    correctSoundRef.current = new Audio("data:audio/wav;base64,UklGRjQnAABXQVZFZm10IBAAAAABAAEARKwAAESsAAABAAgAZGF0YRAnAACA"); // Usar un sonido real
+    wrongSoundRef.current = new Audio("data:audio/wav;base64,UklGRjQnAABXQVZFZm10IBAAAAABAAEARKwAAESsAAABAAgAZGF0YRAnAACA"); // Usar un sonido real
+  }, []);
+
+  // Guardar configuración en localStorage
+  useEffect(() => {
+    localStorage.setItem('techGameSettings', JSON.stringify({
+      soundEnabled,
+      difficultyLevel,
+      highScores
+    }));
+  }, [soundEnabled, difficultyLevel, highScores]);
+
+  // Función para obtener íconos basado en el modo y categoría
+  const getFilteredIcons = () => {
+    if (activeCategory === 'all') {
+      return techIcons;
+    }
+    return techIcons.filter(icon => icon.category === activeCategory);
+  };
+
+  // Función para obtener un ID aleatorio basado en los filtros actuales
+  const getRandomId = () => {
+    const filteredIcons = getFilteredIcons();
+    return filteredIcons[Math.floor(Math.random() * filteredIcons.length)].id;
+  };
+
+  // Actualizar los iconos visibles cuando cambien los filtros o la página
+  useEffect(() => {
+    const filtered = getFilteredIcons();
+    const startIdx = page * ICONS_PER_PAGE;
+    setVisibleIcons(filtered.slice(startIdx, startIdx + ICONS_PER_PAGE));
+  }, [activeCategory, page]);
+
+  // Cambiar página
+  const changePage = (direction) => {
+    const filtered = getFilteredIcons();
+    const maxPages = Math.ceil(filtered.length / ICONS_PER_PAGE);
+    
+    if (direction === 'next' && page < maxPages - 1) {
+      setPage(page + 1);
+    } else if (direction === 'prev' && page > 0) {
+      setPage(page - 1);
+    }
+  };
+
+  const playSound = (type) => {
+    if (!soundEnabled) return;
+    
+    if (type === 'correct') {
+      correctSoundRef.current.play().catch(e => console.log("Error playing sound:", e));
+    } else if (type === 'wrong') {
+      wrongSoundRef.current.play().catch(e => console.log("Error playing sound:", e));
+    }
+  };
+
+  const startGame = (mode = 'normal', category = 'all') => {
+    setGameMode(mode);
+    setActiveCategory(category);
+    setPage(0);
+    setTarget(getRandomId());
+    setScore(0);
+    setStreak(0);
+    setLevel(1);
+    setLives(difficultyLevel === 'easy' ? 5 : difficultyLevel === 'hard' ? 1 : 3);
+    setTimer(difficultyLevel === 'easy' ? 15 : difficultyLevel === 'hard' ? 7 : 10);
+    setMessage('');
+    setIsPlaying(true);
+    setGameOver(false);
+    setShowSettings(false);
+  };
+
+  const handleClick = (id) => {
+    if (!isPlaying) return;
+    
+    setSelectedIcon(id);
+    
+    if (id === target) {
+      // Correcto
+      playSound('correct');
+      
+      let pointsMultiplier = 1;
+      if (difficultyLevel === 'hard') pointsMultiplier = 3;
+      if (difficultyLevel === 'easy') pointsMultiplier = 0.5;
+      
+      // Bonus de tiempo en modo contrarreloj
+      let timeBonus = 0;
+      if (gameMode === 'time') {
+        timeBonus = Math.floor(timer * 0.5);
+      }
+      
+      const newScore = score + (level * 10 * pointsMultiplier) + timeBonus;
+      const newStreak = streak + 1;
+      
+      setScore(newScore);
+      setStreak(newStreak);
+      setMessage('¡Correcto! 🚀' + (timeBonus ? ` +${timeBonus} puntos de tiempo` : ''));
+      
+      // Subir de nivel cada 5 aciertos
+      if (newStreak > 0 && newStreak % 5 === 0) {
+        setLevel(prevLevel => prevLevel + 1);
+        setMessage(`¡Nivel ${level + 1}! 🏆`);
+      }
+      
+      // Resetear el temporizador
+      if (gameMode === 'time') {
+        setTimer(prev => Math.min(prev + 2, 20)); // Añadir tiempo en modo contrarreloj
+      } else {
+        const baseTime = difficultyLevel === 'easy' ? 15 : difficultyLevel === 'hard' ? 5 : 10;
+        setTimer(Math.max(3, baseTime - Math.floor(level / 2)));
+      }
+      
+      // Retrasar un poco antes de cambiar al siguiente objetivo
+      clearTimeout(animationRef.current);
+      animationRef.current = setTimeout(() => {
+        setTarget(getRandomId());
+        setMessage('');
+        setSelectedIcon(null);
+      }, 700);import React, { useState, useEffect, useRef } from 'react';
+import {
+  SiHtml5, SiCss3, SiJavascript, SiReact,
+  SiTailwindcss, SiNodedotjs, SiMongodb, SiPostgresql,
+  SiPython, SiDocker, SiTypescript, SiVuedotjs,
+  SiAngular, SiSass, SiBootstrap, SiPhp,
+  SiGithub, SiAmazonaws, SiGooglecloud, SiFigma, 
+  SiFirebase, SiGraphql, SiRust, SiSwift
+} from 'react-icons/si';
+import { Trophy, Timer, Heart, Brain, Settings, Volume2, VolumeX, ArrowLeft, ArrowRight } from 'lucide-react';
+
+const techIcons = [
+  { id: 'html', icon: <SiHtml5 size={40} title="HTML5" />, color: 'text-orange-500', category: 'frontend' },
+  { id: 'css', icon: <SiCss3 size={40} title="CSS3" />, color: 'text-blue-600', category: 'frontend' },
+  { id: 'js', icon: <SiJavascript size={40} title="JavaScript" />, color: 'text-yellow-400', category: 'frontend' },
+  { id: 'react', icon: <SiReact size={40} title="React" />, color: 'text-cyan-500', category: 'frontend' },
+  { id: 'tailwind', icon: <SiTailwindcss size={40} title="Tailwind CSS" />, color: 'text-teal-400', category: 'frontend' },
+  { id: 'node', icon: <SiNodedotjs size={40} title="Node.js" />, color: 'text-green-600', category: 'backend' },
+  { id: 'mongo', icon: <SiMongodb size={40} title="MongoDB" />, color: 'text-green-500', category: 'backend' },
+  { id: 'postgres', icon: <SiPostgresql size={40} title="PostgreSQL" />, color: 'text-blue-500', category: 'backend' },
+  { id: 'python', icon: <SiPython size={40} title="Python" />, color: 'text-blue-800', category: 'backend' },
+  { id: 'typescript', icon: <SiTypescript size={40} title="TypeScript" />, color: 'text-blue-700', category: 'frontend' },
+  { id: 'docker', icon: <SiDocker size={40} title="Docker" />, color: 'text-blue-600', category: 'devops' },
+  { id: 'vue', icon: <SiVuedotjs size={40} title="Vue.js" />, color: 'text-green-500', category: 'frontend' },
+  { id: 'angular', icon: <SiAngular size={40} title="Angular" />, color: 'text-red-500', category: 'frontend' },
+  { id: 'sass', icon: <SiSass size={40} title="Sass" />, color: 'text-pink-500', category: 'frontend' },
+  { id: 'bootstrap', icon: <SiBootstrap size={40} title="Bootstrap" />, color: 'text-purple-600', category: 'frontend' },
+  { id: 'php', icon: <SiPhp size={40} title="PHP" />, color: 'text-indigo-600', category: 'backend' },
+  { id: 'github', icon: <SiGithub size={40} title="GitHub" />, color: 'text-gray-700', category: 'devops' },
+  { id: 'aws', icon: <SiAmazonaws size={40} title="AWS" />, color: 'text-yellow-600', category: 'devops' },
+  { id: 'gcp', icon: <SiGooglecloud size={40} title="Google Cloud" />, color: 'text-blue-400', category: 'devops' },
+  { id: 'figma', icon: <SiFigma size={40} title="Figma" />, color: 'text-purple-500', category: 'design' },
+  { id: 'firebase', icon: <SiFirebase size={40} title="Firebase" />, color: 'text-yellow-500', category: 'backend' },
+  { id: 'graphql', icon: <SiGraphql size={40} title="GraphQL" />, color: 'text-pink-600', category: 'backend' },
+  { id: 'rust', icon: <SiRust size={40} title="Rust" />, color: 'text-orange-600', category: 'backend' },
+  { id: 'swift', icon: <SiSwift size={40} title="Swift" />, color: 'text-orange-500', category: 'mobile' },
+];
+
+function TechGame({ miroColors = { primary: '#3182CE', accent1: '#48BB78', accent2: '#805AD5' }, darkMode = false }) {
+  const [target, setTarget] = useState('');
+  const [message, setMessage] = useState('');
+  const [score, setScore] = useState(0);
+  const [streak, setStreak] = useState(0);
+  const [level, setLevel] = useState(1);
+  const [lives, setLives] = useState(3);
+  const [timer, setTimer] = useState(10);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [gameOver, setGameOver] = useState(false);
+  const [selectedIcon, setSelectedIcon] = useState(null);
+  
+  const timerRef = useRef(null);
+  const animationRef = useRef(null);
+
+  const getRandomId = () => {
+    const ids = techIcons.map(icon => icon.id);
+    return ids[Math.floor(Math.random() * ids.length)];
+  };
+
+  const startGame = () => {
+    setTarget(getRandomId());
+    setScore(0);
+    setStreak(0);
+    setLevel(1);
+    setLives(3);
+    setTimer(10);
+    setMessage('');
+    setIsPlaying(true);
+    setGameOver(false);
+  };
+
+  const handleClick = (id) => {
+    if (!isPlaying) return;
+    
+    setSelectedIcon(id);
+    
+    if (id === target) {
+      // Correcto
+      const newScore = score + (level * 10);
+      const newStreak = streak + 1;
+      
+      setScore(newScore);
+      setStreak(newStreak);
+      setMessage('¡Correcto! 🚀');
+      
+      // Subir de nivel cada 5 aciertos
+      if (newScore > 0 && newScore % 50 === 0) {
+        setLevel(prevLevel => prevLevel + 1);
+        setMessage('¡Nivel completado! 🏆');
+      }
+      
+      // Resetear el temporizador
+      setTimer(Math.max(5, 10 - Math.floor(level / 2)));
+      
+      // Retrasar un poco antes de cambiar al siguiente objetivo
+      clearTimeout(animationRef.current);
+      animationRef.current = setTimeout(() => {
+        setTarget(getRandomId());
+        setMessage('');
+        setSelectedIcon(null);
+      }, 700);
+    } else {
+      // Incorrecto
+      setStreak(0);
+      setLives(prev => prev - 1);
+      setMessage('¡Incorrecto! 😓');
+      
+      // Comprobar si se acabaron las vidas
+      if (lives <= 1) {
+        endGame();
+      } else {
+        // Retrasar un poco antes de quitar el mensaje
+        clearTimeout(animationRef.current);
+        animationRef.current = setTimeout(() => {
+          setMessage('');
+          setSelectedIcon(null);
+        }, 700);
+      }
+    }
+  };
+
+  const endGame = () => {
+    setIsPlaying(false);
+    setGameOver(true);
+    setMessage(`¡Juego terminado! Puntuación final: ${score}`);
+    clearInterval(timerRef.current);
+  };
+
+  // Iniciar/reiniciar temporizador cuando cambia el nivel o el objetivo
+  useEffect(() => {
+    if (isPlaying) {
+      clearInterval(timerRef.current);
+      setTimer(Math.max(5, 10 - Math.floor(level / 2)));
+      
+      timerRef.current = setInterval(() => {
+        setTimer(prevTimer => {
+          if (prevTimer <= 1) {
+            setLives(prev => prev - 1);
+            if (lives <= 1) {
+              endGame();
+              return 0;
+            } else {
+              setTarget(getRandomId());
+              return Math.max(5, 10 - Math.floor(level / 2));
+            }
+          }
+          return prevTimer - 1;
+        });
+      }, 1000);
+    }
+    
+    return () => clearInterval(timerRef.current);
+  }, [target, level, isPlaying]);
+
+  // Iniciar el juego automáticamente al cargar el componente
+  useEffect(() => {
+    return () => {
+      clearInterval(timerRef.current);
+      clearTimeout(animationRef.current);
+    };
+  }, []);
+
+  const getIconStyle = (id) => {
+    let base = "p-3 rounded-full shadow-md transition-all duration-300 transform";
+    
+    // Si es el icono seleccionado
+    if (selectedIcon === id) {
+      if (id === target) {
+        return `${base} ${darkMode ? 'bg-green-800' : 'bg-green-100'} scale-110 ring-4 ring-green-500`;
+      } else {
+        return `${base} ${darkMode ? 'bg-red-800' : 'bg-red-100'} scale-90 ring-4 ring-red-500`;
+      }
+    }
+    
+    // Estado normal
+    return `${base} ${darkMode ? 'bg-gray-800 hover:bg-gray-700' : 'bg-white hover:bg-gray-100'}`;
+  };
+
+  // Calcular color basado en nivel y tema
+  const getLevelColor = () => {
+    if (darkMode) {
+      return streak >= 5 ? miroColors.accent2 : streak >= 3 ? '#4A5568' : '#2D3748';
+    } else {
+      return streak >= 5 ? `${miroColors.accent2}33` : streak >= 3 ? '#EDF2F7' : '#ffffff';
+    }
+  };
+
+  const levelColor = getLevelColor();
+  const levelBorderColor = streak >= 3 ? miroColors.accent2 : 'transparent';
+
+  // Renderizar pantalla principal
+  const renderMainScreen = () => (
+    <div className="flex flex-col items-center justify-center text-center">
+      <h2 className="text-3xl font-bold mb-6" style={{ color: darkMode ? '#E2E8F0' : '#1A202C' }}>
+        ¡Juego de Tecnologías!
+      </h2>
+      
+      <div className="grid grid-cols-1 gap-4 mb-6 w-full max-w-md">
+        <button 
+          className="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg shadow-lg transition-all flex items-center justify-center"
+          onClick={() => startGame('normal', 'all')}
+        >
+          <Trophy size={20} className="mr-2" /> Modo Clásico
+        </button>
+        
+        <button 
+          className="px-6 py-3 bg-green-500 hover:bg-green-600 text-white rounded-lg shadow-lg transition-all flex items-center justify-center"
+          onClick={() => startGame('time', 'all')}
+        >
+          <Timer size={20} className="mr-2" /> Contrarreloj
+        </button>
+        
+        <button 
+          className="px-6 py-3 bg-purple-500 hover:bg-purple-600 text-white rounded-lg shadow-lg transition-all flex items-center justify-center"
+          onClick={() => setShowSettings(true)}
+        >
+          <Settings size={20} className="mr-2" /> Configuración
+        </button>
+      </div>
+      
+      <div className="text-sm opacity-70" style={{ color: darkMode ? '#E2E8F0' : '#1A202C' }}>
+        Puntuaciones Máximas: 
+        <div className="flex justify-center gap-4 mt-1">
+          <span>Clásico: {highScores.normal}</span>
+          <span>Contrarreloj: {highScores.time}</span>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Renderizar pantalla de configuración
+  const renderSettingsScreen = () => (
+    <div className="flex flex-col items-center justify-center text-center">
+      <h2 className="text-2xl font-bold mb-6" style={{ color: darkMode ? '#E2E8F0' : '#1A202C' }}>
+        Configuración
+      </h2>
+      
+      <div className="w-full max-w-md mb-6">
+        <div className="mb-4">
+          <h3 className="text-lg font-semibold mb-2" style={{ color: darkMode ? '#E2E8F0' : '#1A202C' }}>
+            Dificultad
+          </h3>
+          <div className="flex gap-2">
+            <button 
+              className={`px-4 py-2 rounded-lg flex-1 transition-all ${difficultyLevel === 'easy' 
+                ? 'bg-green-500 text-white' 
+                : darkMode ? 'bg-gray-700 text-gray-200' : 'bg-gray-200 text-gray-700'}`}
+              onClick={() => setDifficultyLevel('easy')}
+            >
+              Fácil
+            </button>
+            <button 
+              className={`px-4 py-2 rounded-lg flex-1 transition-all ${difficultyLevel === 'normal' 
+                ? 'bg-blue-500 text-white' 
+                : darkMode ? 'bg-gray-700 text-gray-200' : 'bg-gray-200 text-gray-700'}`}
+              onClick={() => setDifficultyLevel('normal')}
+            >
+              Normal
+            </button>
+            <button 
+              className={`px-4 py-2 rounded-lg flex-1 transition-all ${difficultyLevel === 'hard' 
+                ? 'bg-red-500 text-white' 
+                : darkMode ? 'bg-gray-700 text-gray-200' : 'bg-gray-200 text-gray-700'}`}
+              onClick={() => setDifficultyLevel('hard')}
+            >
+              Difícil
+            </button>
+          </div>
+        </div>
+
+  return (
+    <div
+      className="mt-8 p-6 rounded-xl max-w-xl mx-auto shadow-xl relative overflow-hidden"
+      style={{ 
+        backgroundColor: levelColor,
+        borderWidth: '2px',
+        borderStyle: 'solid',
+        borderColor: levelBorderColor,
+        transition: 'border-color 0.3s ease, background-color 0.3s ease',
+        minHeight: '400px'
+      }}
+    >
+      {/* Pantalla principal */}
+      {!isPlaying && !gameOver && !showSettings && renderMainScreen()}
+      
+      {/* Pantalla de configuración */}
+      {showSettings && renderSettingsScreen()}
+      
+      {/* Pantalla de fin de juego */}
+      {gameOver && renderGameOverScreen()}
+      
+      {/* Juego activo */}
+      {isPlaying && (
+        <>
+          <div className="flex justify-between items-center mb-4">
+            <div className="flex items-center">
+              <Trophy size={20} className="mr-1" style={{ color: miroColors.primary }} />
+              <span style={{ color: darkMode ? '#E2E8F0' : '#1A202C' }}>{score}</span>
+            </div>
+            <div className="flex items-center">
+              <Timer size={20} className="mr-1" style={{ color: miroColors.accent1 }} />
+              <span 
+                style={{ 
+                  color: timer <= 3 ? '#F56565' : darkMode ? '#E2E8F0' : '#1A202C',
+                  fontWeight: timer <= 3 ? 'bold' : 'normal'
+                }}
+              >
+                {timer}s
+              </span>
+            </div>
+            <div className="flex items-center">
+              {[...Array(lives)].map((_, i) => (
+                <Heart 
+                  key={i} 
+                  size={18} 
+                  className="ml-1" 
+                  fill="#f56565" 
+                  color="#f56565" 
+                />
+              ))}
+            </div>
+          </div>
+
+          <h2 
+            className="text-xl font-bold mb-2 text-center" 
+            style={{ color: darkMode ? '#E2E8F0' : '#1A202C' }}
+          >
+            ¿Dónde está <span style={{ color: miroColors.primary }} className="uppercase font-extrabold">{target}</span>?
+          </h2>
+
+          <div className="flex justify-between items-center mb-4">
+            <div className="text-sm" style={{ color: darkMode ? '#A0AEC0' : '#4A5568' }}>
+              Nivel: {level}
+            </div>
+            <div className="text-sm" style={{ color: darkMode ? '#A0AEC0' : '#4A5568' }}>
+              Racha: {streak}
+            </div>
+            <div className="text-sm" style={{ color: darkMode ? '#A0AEC0' : '#4A5568' }}>
+              Modo: {gameMode === 'time' ? 'Contrarreloj' : 'Clásico'}
+            </div>
+          </div>
+
+          <div className="w-full bg-gray-200 h-2 rounded-full overflow-hidden mb-4">
+            <div
+              className="h-full bg-gradient-to-r from-green-400 to-blue-500"
+              style={{ 
+                width: `${gameMode === 'time' ? (timer * 5) : (score % 50) * 2}%`, 
+                transition: 'width 0.5s ease-in-out' 
+              }}
+            />
+          </div>
+
+          {gameMode === 'category' && (
+            <div className="flex flex-wrap justify-center gap-2 mb-3">
+              <button 
+                className={`px-2 py-1 rounded text-xs ${activeCategory === 'all' 
+                  ? 'bg-blue-500 text-white' 
+                  : darkMode ? 'bg-gray-700 text-gray-200' : 'bg-gray-200 text-gray-700'}`}
+                onClick={() => setActiveCategory('all')}
+              >
+                Todas
+              </button>
+              <button 
+                className={`px-2 py-1 rounded text-xs ${activeCategory === 'frontend' 
+                  ? 'bg-blue-500 text-white' 
+                  : darkMode ? 'bg-gray-700 text-gray-200' : 'bg-gray-200 text-gray-700'}`}
+                onClick={() => setActiveCategory('frontend')}
+              >
+                Frontend
+              </button>
+              <button 
+                className={`px-2 py-1 rounded text-xs ${activeCategory === 'backend' 
+                  ? 'bg-blue-500 text-white' 
+                  : darkMode ? 'bg-gray-700 text-gray-200' : 'bg-gray-200 text-gray-700'}`}
+                onClick={() => setActiveCategory('backend')}
+              >
+                Backend
+              </button>
+              <button 
+                className={`px-2 py-1 rounded text-xs ${activeCategory === 'devops' 
+                  ? 'bg-blue-500 text-white' 
+                  : darkMode ? 'bg-gray-700 text-gray-200' : 'bg-gray-200 text-gray-700'}`}
+                onClick={() => setActiveCategory('devops')}
+              >
+                DevOps
+              </button>
+            </div>
+          )}
+
+          <div className="flex flex-wrap justify-center gap-3 sm:gap-4 md:gap-6 mt-4">
+            {visibleIcons.length > 0 ? 
+              visibleIcons.map(({ id, icon, color }) => (
+                <button
+                  key={id}
+                  onClick={() => handleClick(id)}
+                  className={`${getIconStyle(id)} ${color}`}
+                  aria-label={`Icono ${id}`}
+                >
+                  {icon}
+                </button>
+              )) : 
+              getFilteredIcons().slice(0, 12).map(({ id, icon, color }) => (
+                <button
+                  key={id}
+                  onClick={() => handleClick(id)}
+                  className={`${getIconStyle(id)} ${color}`}
+                  aria-label={`Icono ${id}`}
+                >
+                  {icon}
+                </button>
+              ))
+            }
+          </div>
+          
+          {getFilteredIcons().length > ICONS_PER_PAGE && (
+            <div className="flex justify-center mt-4 gap-3">
+              <button 
+                className={`p-2 rounded-full ${page > 0 ? 'bg-blue-500 text-white' : 'bg-gray-300 text-gray-500'}`}
+                onClick={() => changePage('prev')}
+                disabled={page === 0}
+              >
+                <ArrowLeft size={16} />
+              </button>
+              <button 
+                className={`p-2 rounded-full ${page < Math.ceil(getFilteredIcons().length / ICONS_PER_PAGE) - 1 ? 'bg-blue-500 text-white' : 'bg-gray-300 text-gray-500'}`}
+                onClick={() => changePage('next')}
+                disabled={page >= Math.ceil(getFilteredIcons().length / ICONS_PER_PAGE) - 1}
+              >
+                <ArrowRight size={16} />
+              </button>
+            </div>
+          )}
+        </>
+      )}
+
+      {message && (
+        <p 
+          className="mt-4 font-medium text-center animate-pulse" 
+          style={{ 
+            color: message.includes("Correcto") || message.includes("Nivel") 
+              ? miroColors.accent1 
+              : message.includes("Incorrecto") 
+                ? '#f56565' 
+                : miroColors.primary 
+          }}
+        >
+          {message}
+        </p>
+      )}
+    </div>
+  );
+}
+
+export default TechGame;
+
+export default TechGame;
