@@ -1,32 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import {
-  SiHtml5, SiCss3, SiJavascript, SiReact,
-  SiTailwindcss, SiNodedotjs, SiMongodb, SiPostgresql,
-  SiPython, SiDocker, SiTypescript, SiVuedotjs,
-  SiAngular, SiSass, SiBootstrap, SiPhp
-} from 'react-icons/si';
+  FaInstagram, FaFacebook, FaTwitter, FaYoutube,
+  FaTiktok, FaLinkedin, FaWhatsapp, FaSnapchat,
+  FaPinterest, FaReddit
+} from 'react-icons/fa';
 
-// Tech icons collection with metadata
-const techIcons = [
-  { id: 'html', icon: <SiHtml5 size={40} />, name: "HTML5", color: 'text-orange-500', bgColor: 'bg-orange-100' },
-  { id: 'css', icon: <SiCss3 size={40} />, name: "CSS3", color: 'text-blue-600', bgColor: 'bg-blue-100' },
-  { id: 'js', icon: <SiJavascript size={40} />, name: "JavaScript", color: 'text-yellow-400', bgColor: 'bg-yellow-100' },
-  { id: 'react', icon: <SiReact size={40} />, name: "React", color: 'text-cyan-500', bgColor: 'bg-cyan-100' },
-  { id: 'tailwind', icon: <SiTailwindcss size={40} />, name: "Tailwind CSS", color: 'text-teal-400', bgColor: 'bg-teal-100' },
-  { id: 'node', icon: <SiNodedotjs size={40} />, name: "Node.js", color: 'text-green-600', bgColor: 'bg-green-100' },
-  { id: 'mongo', icon: <SiMongodb size={40} />, name: "MongoDB", color: 'text-green-500', bgColor: 'bg-green-100' },
-  { id: 'postgres', icon: <SiPostgresql size={40} />, name: "PostgreSQL", color: 'text-blue-500', bgColor: 'bg-blue-100' },
-  { id: 'python', icon: <SiPython size={40} />, name: "Python", color: 'text-blue-800', bgColor: 'bg-blue-100' },
-  { id: 'typescript', icon: <SiTypescript size={40} />, name: "TypeScript", color: 'text-blue-700', bgColor: 'bg-blue-100' },
-  { id: 'docker', icon: <SiDocker size={40} />, name: "Docker", color: 'text-blue-600', bgColor: 'bg-blue-100' },
-  { id: 'vue', icon: <SiVuedotjs size={40} />, name: "Vue.js", color: 'text-green-500', bgColor: 'bg-green-100' },
-  { id: 'angular', icon: <SiAngular size={40} />, name: "Angular", color: 'text-red-500', bgColor: 'bg-red-100' },
-  { id: 'sass', icon: <SiSass size={40} />, name: "Sass", color: 'text-pink-500', bgColor: 'bg-pink-100' },
-  { id: 'bootstrap', icon: <SiBootstrap size={40} />, name: "Bootstrap", color: 'text-purple-600', bgColor: 'bg-purple-100' },
-  { id: 'php', icon: <SiPhp size={40} />, name: "PHP", color: 'text-indigo-600', bgColor: 'bg-indigo-100' },
+// Solo las 10 redes sociales más populares
+const socialIcons = [
+  { id: 'instagram', icon: <FaInstagram size={40} />, name: "Instagram", color: 'text-pink-600', bgColor: 'bg-pink-100' },
+  { id: 'facebook', icon: <FaFacebook size={40} />, name: "Facebook", color: 'text-blue-600', bgColor: 'bg-blue-100' },
+  { id: 'youtube', icon: <FaYoutube size={40} />, name: "YouTube", color: 'text-red-600', bgColor: 'bg-red-100' },
+  { id: 'tiktok', icon: <FaTiktok size={40} />, name: "TikTok", color: 'text-black', bgColor: 'bg-gray-100' },
+  { id: 'whatsapp', icon: <FaWhatsapp size={40} />, name: "WhatsApp", color: 'text-green-500', bgColor: 'bg-green-100' },
+  { id: 'twitter', icon: <FaTwitter size={40} />, name: "Twitter", color: 'text-blue-400', bgColor: 'bg-blue-100' },
+  { id: 'linkedin', icon: <FaLinkedin size={40} />, name: "LinkedIn", color: 'text-blue-700', bgColor: 'bg-blue-100' },
+  { id: 'snapchat', icon: <FaSnapchat size={40} />, name: "Snapchat", color: 'text-yellow-400', bgColor: 'bg-yellow-100' },
+  { id: 'pinterest', icon: <FaPinterest size={40} />, name: "Pinterest", color: 'text-red-500', bgColor: 'bg-red-100' },
+  { id: 'reddit', icon: <FaReddit size={40} />, name: "Reddit", color: 'text-orange-500', bgColor: 'bg-orange-100' },
 ];
 
-const EnhancedTechGame = ({ darkMode = false }) => {
+const SocialMediaGame = ({ darkMode = false }) => {
   // Game state
   const [target, setTarget] = useState(null);
   const [score, setScore] = useState(0);
@@ -39,7 +32,7 @@ const EnhancedTechGame = ({ darkMode = false }) => {
   const [showHint, setShowHint] = useState(false);
   const [difficulty, setDifficulty] = useState('medium');
   
-  // Visual theme - can be customized
+  // Visual theme
   const theme = {
     primary: darkMode ? '#8B5CF6' : '#6D28D9',
     secondary: darkMode ? '#EC4899' : '#DB2777',
@@ -51,9 +44,9 @@ const EnhancedTechGame = ({ darkMode = false }) => {
     muted: darkMode ? '#9CA3AF' : '#6B7280',
   };
 
-  // Get a random tech icon that hasn't been found yet
+  // Get a random social icon that hasn't been found yet
   const getRandomTarget = () => {
-    const availableIcons = techIcons.filter(icon => !foundItems.includes(icon.id));
+    const availableIcons = socialIcons.filter(icon => !foundItems.includes(icon.id));
     if (availableIcons.length === 0) {
       endGame(true);
       return null;
@@ -84,9 +77,9 @@ const EnhancedTechGame = ({ darkMode = false }) => {
     setTarget(null);
     
     if (completed) {
-      setMessage('¡Increíble! ¡Has encontrado todas las tecnologías!');
+      setMessage('¡Perfecto! ¡Has encontrado todas las redes!');
     } else {
-      setMessage(`¡Tiempo agotado! Tu puntuación: ${score}`);
+      setMessage(`¡Tiempo agotado! Puntuación: ${score}`);
     }
   };
 
@@ -98,8 +91,6 @@ const EnhancedTechGame = ({ darkMode = false }) => {
       // Correct click
       setFoundItems(prev => [...prev, id]);
       setScore(prev => prev + Math.floor(timeLeft / 3) + 1);
-      
-      // Visual feedback for correct answer
       setMessage(`¡Correcto! +${Math.floor(timeLeft / 3) + 1} puntos`);
       
       // Set new target
@@ -116,8 +107,6 @@ const EnhancedTechGame = ({ darkMode = false }) => {
       setMessage('¡Incorrecto! Intenta de nuevo');
       setShakeIcon(id);
       setTimeout(() => setShakeIcon(''), 500);
-      
-      // Penalty: reduce time
       setTimeLeft(prev => Math.max(1, prev - 2));
     }
   };
@@ -128,7 +117,6 @@ const EnhancedTechGame = ({ darkMode = false }) => {
       const hintTimer = setTimeout(() => {
         setShowHint(true);
       }, 8000);
-      
       return () => clearTimeout(hintTimer);
     }
   }, [target, gameActive, showHint]);
@@ -152,20 +140,20 @@ const EnhancedTechGame = ({ darkMode = false }) => {
   }, [gameActive]);
 
   // Shuffle icons for display
-  const shuffledIcons = [...techIcons].sort(() => Math.random() - 0.5);
+  const shuffledIcons = [...socialIcons].sort(() => Math.random() - 0.5);
 
   return (
-    <div className="w-full max-w-4xl mx-auto relative px-4 py-8" style={{ 
+    <div className="w-full max-w-3xl mx-auto relative px-4 py-8" style={{ 
       backgroundColor: theme.background, 
       borderRadius: '2rem', 
       overflow: 'hidden' 
     }}>
       {/* Floating background elements */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-        {techIcons.slice(0, 8).map((tech, i) => (
+        {socialIcons.slice(0, 5).map((social, i) => (
           <div 
-            key={`bg-${tech.id}`}
-            className={`absolute opacity-10 ${tech.color}`}
+            key={`bg-${social.id}`}
+            className={`absolute opacity-10 ${social.color}`}
             style={{
               top: `${Math.random() * 100}%`,
               left: `${Math.random() * 100}%`,
@@ -173,7 +161,7 @@ const EnhancedTechGame = ({ darkMode = false }) => {
               animation: `float-${i} ${10 + i * 5}s infinite ease-in-out alternate`
             }}
           >
-            {tech.icon}
+            {social.icon}
             <style jsx>{`
               @keyframes float-${i} {
                 0% { transform: translate(0, 0) rotate(0deg) scale(1.5); }
@@ -193,14 +181,14 @@ const EnhancedTechGame = ({ darkMode = false }) => {
             WebkitBackgroundClip: 'text',
             color: 'transparent'
           }}>
-            Tech Stack Finder
+            Redes Sociales Finder
           </span>
         </h2>
         
         {!gameActive && !gameOver && (
           <div className="mb-6 p-4 rounded-lg" style={{ backgroundColor: theme.cardBg }}>
             <p className="mb-4" style={{ color: theme.text }}>
-              Encuentra tecnologías tan rápido como puedas. ¡Demuestra tus habilidades!
+              Encuentra las redes sociales tan rápido como puedas. ¡Las 10 más populares!
             </p>
             
             <div className="mb-4">
@@ -260,7 +248,7 @@ const EnhancedTechGame = ({ darkMode = false }) => {
             <div className="flex items-center">
               <div className="mr-2" style={{ color: theme.primary }}>✅</div>
               <div className="text-xl font-bold" style={{ color: theme.text }}>
-                {foundItems.length} / {difficulty === 'easy' ? 8 : difficulty === 'medium' ? 12 : techIcons.length}
+                {foundItems.length} / {difficulty === 'easy' ? 6 : difficulty === 'medium' ? 8 : socialIcons.length}
               </div>
             </div>
           </div>
@@ -294,33 +282,32 @@ const EnhancedTechGame = ({ darkMode = false }) => {
         )}
       </div>
 
-      {/* Game grid */}
+      {/* Game grid - now simpler with 10 icons */}
       {(gameActive || gameOver) && (
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-4 justify-items-center">
-          {shuffledIcons.slice(0, difficulty === 'easy' ? 8 : difficulty === 'medium' ? 12 : techIcons.length).map((tech) => (
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4 justify-items-center">
+          {shuffledIcons.slice(0, difficulty === 'easy' ? 6 : difficulty === 'medium' ? 8 : socialIcons.length).map((social) => (
             <div 
-              key={tech.id}
-              onClick={() => handleIconClick(tech.id)}
+              key={social.id}
+              onClick={() => handleIconClick(social.id)}
               className={`
                 relative flex flex-col items-center justify-center p-4 rounded-xl cursor-pointer 
-                transition-all transform hover:scale-110 ${tech.bgColor} ${foundItems.includes(tech.id) ? 'opacity-50' : ''}
-                ${shakeIcon === tech.id ? 'animate-shake' : ''}
-                ${target && target.id === tech.id ? 'ring-4 animate-pulse' : ''}
+                transition-all transform hover:scale-110 ${social.bgColor} ${foundItems.includes(social.id) ? 'opacity-50' : ''}
+                ${shakeIcon === social.id ? 'animate-shake' : ''}
+                ${target && target.id === social.id ? 'ring-4 animate-pulse' : ''}
               `}
               style={{
                 boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-                animation: shakeIcon === tech.id ? 'shake 0.5s cubic-bezier(.36,.07,.19,.97) both' : '',
+                animation: shakeIcon === social.id ? 'shake 0.5s cubic-bezier(.36,.07,.19,.97) both' : '',
               }}
             >
-              <div className={tech.color}>
-                {tech.icon}
+              <div className={social.color}>
+                {social.icon}
               </div>
               <span className="mt-2 text-xs font-medium" style={{ color: theme.text }}>
-                {tech.name}
+                {social.name}
               </span>
               
-              {/* Found checkmark */}
-              {foundItems.includes(tech.id) && (
+              {foundItems.includes(social.id) && (
                 <div className="absolute -top-2 -right-2 bg-green-500 text-white rounded-full w-6 h-6 flex items-center justify-center">
                   ✓
                 </div>
@@ -343,13 +330,13 @@ const EnhancedTechGame = ({ darkMode = false }) => {
       {gameOver && (
         <div className="mt-8 p-6 rounded-xl text-center animate-fadeIn" style={{ backgroundColor: theme.cardBg }}>
           <h3 className="text-2xl font-bold mb-2" style={{ color: theme.text }}>
-            {foundItems.length === techIcons.length ? '¡Victoria Total!' : '¡Juego Terminado!'}
+            {foundItems.length === socialIcons.length ? '¡Perfecto!' : '¡Juego Terminado!'}
           </h3>
           
           <p className="text-lg mb-4" style={{ color: theme.text }}>
-            {foundItems.length === techIcons.length ? 
-              '¡Felicidades! Encontraste todas las tecnologías' : 
-              `Encontraste ${foundItems.length} tecnologías y conseguiste ${score} puntos`}
+            {foundItems.length === socialIcons.length ? 
+              '¡Felicidades! Conoces todas las redes populares' : 
+              `Encontraste ${foundItems.length} de ${socialIcons.length} redes`}
           </p>
           
           <button
@@ -365,9 +352,8 @@ const EnhancedTechGame = ({ darkMode = false }) => {
           </button>
         </div>
       )}
-      
     </div>
   );
 };
 
-export default EnhancedTechGame;
+export default SocialMediaGame;
