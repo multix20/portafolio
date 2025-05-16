@@ -34,7 +34,7 @@ const Logo = () => {
       <div
         className={`w-14 h-14 rounded-full flex items-center justify-center font-bold text-sm font-orbitron transition-all duration-[2000ms] ease-in-out ${getClasses()}`}
       >
-        Multix
+      dev&Art
       </div>
 
       {/* Tooltip al hacer hover */}

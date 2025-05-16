@@ -14,9 +14,9 @@ function App() {
     <div className="bg-gray-50 text-gray-900 font-sans">
       <Header />
       <Hero />
+      <About />
       <Projects />
       <Services />
-      <About />
       <Contact />
       <Footer />
       <WhatsAppButton />      
