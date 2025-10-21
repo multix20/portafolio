@@ -43,7 +43,6 @@ Este portafolio refleja mi visión como desarrollador: construir soluciones digi
 ¿Tienes una propuesta, colaboración o trabajo freelance?
 
 - ✉️ **jp.devtravel@gmail.com**
-- 🌐 [www.linkedin.com/in/juanpablomonsalve](https://www.linkedin.com/in/juanpablomonsalve)
 
 ---
 
